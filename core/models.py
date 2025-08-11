@@ -33,13 +33,13 @@ class Organization(models.Model):
         ordering = ["org_type__name", "name"]
 
     def __str__(self):
-        return f"{self.name} ({self.org_type.name})"
+        return self.name
 
 class OrganizationRole(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
-    description = models.TextField(blank=True, null=True)  # <-- Add this line
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("organization", "name")

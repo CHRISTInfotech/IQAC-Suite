@@ -3439,76 +3439,48 @@ def student_event_details(request, proposal_id):
 def is_admin(user):
     return user.is_superuser
 
-@user_passes_test(lambda u: u.is_superuser)
-def impersonate_user(request, user_id):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+from .models import Profile  # Import the Profile model which contains ROLE_CHOICES
 
-    role_id = request.POST.get('role_id')
-    if not role_id:
-        return JsonResponse({'success': False, 'message': 'No role specified'})
-
-    try:
-        role = OrganizationRole.objects.get(id=role_id)
-        # Store role information in session
-        request.session['impersonated_role_id'] = role.id
-        messages.success(request, f'Now viewing as {role.name}')
-        return JsonResponse({'success': True})
-    except OrganizationRole.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Role not found'})
+def admin_user_management(request):
+    # Get roles from Profile model
+    available_roles = Profile.ROLE_CHOICES
+    
+    # Get current role if impersonating
+    current_role = request.session.get('impersonated_role')
+    
+    context = {
+        'available_roles': available_roles,
+        'current_role': current_role,
+    }
+    
+    return render(request, "core/admin_user_management.html", context)
 
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def start_role_impersonation(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'})
     
-    role_id = request.POST.get('role_id')
-    if not role_id:
+    role = request.POST.get('role')
+    if not role:
         return JsonResponse({'success': False, 'message': 'No role specified'})
     
-    try:
-        role = OrganizationRole.objects.select_related('organization').get(id=role_id)
-        request.session['impersonated_role_id'] = role.id
-        messages.success(request, f'Now viewing as {role.name} in {role.organization.name}')
-        return JsonResponse({'success': True})
-    except OrganizationRole.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Role not found'})
+    # Validate role
+    valid_roles = dict(Profile.ROLE_CHOICES)
+    if role not in valid_roles:
+        return JsonResponse({'success': False, 'message': 'Invalid role'})
+    
+    # Store role in session
+    request.session['impersonated_role'] = role
+    messages.success(request, f'Now viewing as {valid_roles[role]}')
+    return JsonResponse({'success': True})
 
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def stop_role_impersonation(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'Method not allowed'})
     
-    if 'impersonated_role_id' in request.session:
-        del request.session['impersonated_role_id']
+    if 'impersonated_role' in request.session:
+        del request.session['impersonated_role']
         messages.success(request, 'Stopped role impersonation')
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'message': 'No active impersonation'})
-
-def admin_user_management(request):
-    # Get all active roles grouped by organization
-    organizations_with_roles = (
-        Organization.objects.filter(
-            organizationrole__is_active=True
-        ).prefetch_related(
-            'organizationrole_set'
-        ).distinct()
-    )
-    
-    current_role = None
-    if request.session.get('impersonated_role_id'):
-        try:
-            current_role = OrganizationRole.objects.select_related('organization').get(
-                id=request.session['impersonated_role_id']
-            )
-        except OrganizationRole.DoesNotExist:
-            # Clear invalid session data
-            if 'impersonated_role_id' in request.session:
-                del request.session['impersonated_role_id']
-
-    context = {
-        'organizations_with_roles': organizations_with_roles,
-        'current_role': current_role,
-        # Add other context data you need
-    }
-    return render(request, "core/admin_user_management.html", context)
