@@ -175,6 +175,43 @@ h1.mgmt-title {
 .btn-primary { background: #2274cb !important; }
 .btn-primary:hover { background: #154d8b !important; }
 
+.btn-impersonate {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-impersonate:hover {
+    background-color: #138496;
+    border-color: #117a8b;
+    color: white;
+}
+
+.btn-stop-impersonate {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #212529;
+    transition: all 0.3s ease;
+}
+
+.btn-stop-impersonate:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+    color: #212529;
+}
+
+/* Add spacing between action buttons */
+.action-buttons form {
+    margin-right: 4px;
+}
+
+/* Make sure buttons align properly */
+.action-buttons form {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 /* Search bar */
 .dataTables_filter {
   order: 2;

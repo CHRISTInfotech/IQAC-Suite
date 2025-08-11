@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseForbidden, JsonResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.db.models import Q, Sum, Count
+from django.db.models import Q, Sum, Count, Prefetch
 from django.forms import inlineformset_factory
 from django import forms
 from django.urls import reverse
@@ -664,6 +664,36 @@ def admin_user_management(request):
         'role_assignments__organization__org_type'
     ).order_by('-date_joined')
 
+    available_roles = OrganizationRole.objects.filter(is_active=True).select_related('organization')
+
+    organizations_with_roles = Organization.objects.filter(
+        organizationrole__is_active=True
+    ).prefetch_related(
+        Prefetch(
+            'organizationrole_set',
+            queryset=OrganizationRole.objects.filter(is_active=True).order_by('name')
+        )
+    ).distinct().order_by('name')
+    
+    users = User.objects.all().prefetch_related(
+        'role_assignments',
+        'role_assignments__role',
+        'role_assignments__organization',
+        'role_assignments__organization__org_type',
+        'profile'
+    )
+
+    # Get current role information if impersonating
+    current_role = None
+    if request.session.get('impersonated_role_id'):
+        try:
+            current_role = OrganizationRole.objects.select_related('organization').get(
+                id=request.session['impersonated_role_id']
+            )
+        except OrganizationRole.DoesNotExist:
+            if 'impersonated_role_id' in request.session:
+                del request.session['impersonated_role_id']
+
     # Filter parameters - support both single and multiple values
     q = request.GET.get('q', '').strip()
     role_ids = request.GET.getlist('role[]') or ([request.GET.get('role')] if request.GET.get('role') else [])
@@ -732,6 +762,12 @@ def admin_user_management(request):
         },
         'query_params': query_params.urlencode(),
         'total_users': users_list.count(),
+        'available_roles': available_roles,
+        'users': users,
+        'organizations_with_roles': organizations_with_roles,
+        'current_role': current_role,
+        'current_impersonated_role': request.session.get('impersonated_role_id'),
+        'current_impersonated_user': request.session.get('impersonate_user_id'),
     }
     
     return render(request, "core/admin_user_management.html", context)
@@ -3399,3 +3435,80 @@ def student_event_details(request, proposal_id):
     }
     
     return render(request, 'core/student_event_details.html', context)
+
+def is_admin(user):
+    return user.is_superuser
+
+@user_passes_test(lambda u: u.is_superuser)
+def impersonate_user(request, user_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'}, status=405)
+
+    role_id = request.POST.get('role_id')
+    if not role_id:
+        return JsonResponse({'success': False, 'message': 'No role specified'})
+
+    try:
+        role = OrganizationRole.objects.get(id=role_id)
+        # Store role information in session
+        request.session['impersonated_role_id'] = role.id
+        messages.success(request, f'Now viewing as {role.name}')
+        return JsonResponse({'success': True})
+    except OrganizationRole.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Role not found'})
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def start_role_impersonation(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    role_id = request.POST.get('role_id')
+    if not role_id:
+        return JsonResponse({'success': False, 'message': 'No role specified'})
+    
+    try:
+        role = OrganizationRole.objects.select_related('organization').get(id=role_id)
+        request.session['impersonated_role_id'] = role.id
+        messages.success(request, f'Now viewing as {role.name} in {role.organization.name}')
+        return JsonResponse({'success': True})
+    except OrganizationRole.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Role not found'})
+
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def stop_role_impersonation(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    if 'impersonated_role_id' in request.session:
+        del request.session['impersonated_role_id']
+        messages.success(request, 'Stopped role impersonation')
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'message': 'No active impersonation'})
+
+def admin_user_management(request):
+    # Get all active roles grouped by organization
+    organizations_with_roles = (
+        Organization.objects.filter(
+            organizationrole__is_active=True
+        ).prefetch_related(
+            'organizationrole_set'
+        ).distinct()
+    )
+    
+    current_role = None
+    if request.session.get('impersonated_role_id'):
+        try:
+            current_role = OrganizationRole.objects.select_related('organization').get(
+                id=request.session['impersonated_role_id']
+            )
+        except OrganizationRole.DoesNotExist:
+            # Clear invalid session data
+            if 'impersonated_role_id' in request.session:
+                del request.session['impersonated_role_id']
+
+    context = {
+        'organizations_with_roles': organizations_with_roles,
+        'current_role': current_role,
+        # Add other context data you need
+    }
+    return render(request, "core/admin_user_management.html", context)

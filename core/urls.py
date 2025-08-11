@@ -175,9 +175,8 @@ urlpatterns = [
     path('api/roles/', views.api_roles, name='api_roles'),
     path('api/event-contribution/', views.event_contribution_data, name='event_contribution_data'),
     
-    
-    
-    
+    path('role-impersonation/start/', views.start_role_impersonation, name='start_role_impersonation'),
+    path('role-impersonation/stop/', views.stop_role_impersonation, name='stop_role_impersonation'),
         
     # Data Export URLs
     path('data-export-filter/', views.data_export_filter_view, name='data_export_filter'),
