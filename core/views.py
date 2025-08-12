@@ -3488,6 +3488,20 @@ def start_role_impersonation(request):
         'redirect_url': redirect_url
     })
 
+@user_passes_test(lambda u: u.is_staff or u.is_superuser)
+def stop_role_impersonation(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Method not allowed'})
+    
+    if 'impersonated_role' in request.session:
+        del request.session['impersonated_role']
+        messages.success(request, 'Stopped role impersonation')
+        return JsonResponse({
+            'success': True,
+            'redirect_url': reverse('admin_user_management')
+        })
+    return JsonResponse({'success': False, 'message': 'No active impersonation'})
+
 # Update your user_dashboard view to handle different roles
 def user_dashboard(request):
     current_role = request.session.get('impersonated_role')
