@@ -5,6 +5,8 @@ from core.models import RoleAssignment
 from emt.models import Student
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+from django.contrib import messages  # Add this import
+from .views import get_role_redirect_url  # Import the helper function
 
 class RegistrationRequiredMiddleware:
     """Redirect authenticated users to the registration form until they register."""
@@ -51,3 +53,52 @@ class RegistrationRequiredMiddleware:
             if not student.registration_number:
                 return False
         return RoleAssignment.objects.filter(user=user).exists()
+
+class RoleMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if not request.user.is_authenticated:
+            return None
+
+        current_role = request.session.get('impersonated_role')
+        if not current_role:
+            return None
+
+        # Define role-specific URL patterns
+        role_patterns = {
+            'student': ['/dashboard/', '/student/'],
+            'faculty': ['/dashboard/', '/faculty/'],
+            'tutor': ['/dashboard/', '/tutor/'],
+            'admin': ['/core-admin/', '/dashboard/'],
+        }
+
+        # Always allow these URLs
+        always_allowed = [
+            '/accounts/logout/',
+            '/media/',
+            '/static/',
+            '/favicon.ico',
+            '/role-impersonation/',
+        ]
+
+        current_path = request.path
+        
+        # Allow access to always-allowed URLs
+        if any(current_path.startswith(pattern) for pattern in always_allowed):
+            return None
+
+        # Get allowed patterns for current role
+        allowed_patterns = role_patterns.get(current_role, [])
+        
+        # Check if current path is allowed
+        if not any(current_path.startswith(pattern) for pattern in allowed_patterns):
+            messages.warning(request, "Access restricted based on current role.")
+            return redirect('user_dashboard')
+
+        return None

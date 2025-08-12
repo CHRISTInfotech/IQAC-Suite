@@ -1066,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle forms
-    document.querySelectorAll('form').forEach(form => {
+    document.querySelectorAll('.role-impersonation-form, .stop-impersonation-form').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const button = this.querySelector('button');
@@ -1084,7 +1084,23 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.reload();
+                    // Show transition message
+                    const message = document.createElement('div');
+                    message.className = 'position-fixed top-50 start-50 translate-middle p-3 bg-white rounded shadow';
+                    message.innerHTML = `
+                        <div class="text-center">
+                            <div class="spinner-border text-primary mb-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div>Switching role...</div>
+                        </div>
+                    `;
+                    document.body.appendChild(message);
+
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 500);
                 } else {
                     alert(data.message || 'An error occurred');
                     button.innerHTML = originalText;

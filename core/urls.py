@@ -164,7 +164,11 @@ urlpatterns = [
     # Admin Dashboard API
     # ────────────────────────────────────────────────
     path('admin-dashboard-api/', views.admin_dashboard_api, name='admin_dashboard_api'),
-
+    path('dashboard/student/', views.student_dashboard, name='student_dashboard'),
+    path('dashboard/faculty/', views.faculty_dashboard, name='faculty_dashboard'),
+    path('dashboard/tutor/', views.tutor_dashboard, name='tutor_dashboard'),
+    path('dashboard/admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('', views.home, name='home'),  # Fallback URL
 
     # ────────────────────────────────────────────────
 

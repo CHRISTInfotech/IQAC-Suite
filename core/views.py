@@ -3455,6 +3455,13 @@ def admin_user_management(request):
     
     return render(request, "core/admin_user_management.html", context)
 
+def get_role_redirect_url(role):
+    """
+    Returns the appropriate URL for each role
+    """
+    # Since we're using a single dashboard view, just return the dashboard URL
+    return 'user_dashboard'
+
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def start_role_impersonation(request):
     if request.method != 'POST':
@@ -3471,16 +3478,37 @@ def start_role_impersonation(request):
     
     # Store role in session
     request.session['impersonated_role'] = role
-    messages.success(request, f'Now viewing as {valid_roles[role]}')
-    return JsonResponse({'success': True})
-
-@user_passes_test(lambda u: u.is_staff or u.is_superuser)
-def stop_role_impersonation(request):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'message': 'Method not allowed'})
     
-    if 'impersonated_role' in request.session:
-        del request.session['impersonated_role']
-        messages.success(request, 'Stopped role impersonation')
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'message': 'No active impersonation'})
+    # Get the redirect URL (always user_dashboard in this case)
+    redirect_url = reverse('user_dashboard')
+    
+    messages.success(request, f'Now viewing as {valid_roles[role]}')
+    return JsonResponse({
+        'success': True,
+        'redirect_url': redirect_url
+    })
+
+# Update your user_dashboard view to handle different roles
+def user_dashboard(request):
+    current_role = request.session.get('impersonated_role')
+    if not current_role:
+        # Get user's actual role if not impersonating
+        current_role = request.user.profile.role if hasattr(request.user, 'profile') else None
+
+    context = {
+        'current_role': current_role,
+        # Add other context data based on role
+    }
+
+    # You can customize the dashboard content based on role
+    if current_role == 'student':
+        # Add student-specific context
+        pass
+    elif current_role == 'faculty':
+        # Add faculty-specific context
+        pass
+    elif current_role == 'tutor':
+        # Add tutor-specific context
+        pass
+
+    return render(request, 'core/dashboard.html', context)
