@@ -82,7 +82,12 @@
       grid.innerHTML = cells.map(c=>{
         const today = c.date && isSame(c.date, new Date());
         const iso = c.date ? `${c.date.getFullYear()}-${fmt2(c.date.getMonth()+1)}-${fmt2(c.date.getDate())}` : '';
-        return `<div class="day${c.muted?' muted':''}${today?' today':''}" data-date="${iso}">${c.text}</div>`;
+        
+        // Check if this date has any events (including past events for marking)
+        const hasEvents = iso && (window.DASHBOARD_EVENTS||[]).some(e => e.date === iso);
+        const eventClass = hasEvents ? ' has-events' : '';
+        
+        return `<div class="day${c.muted?' muted':''}${today?' today':''}${eventClass}" data-date="${iso}">${c.text}</div>`;
       }).join('');
   
       grid.querySelectorAll('.day[data-date]').forEach(el=>{
@@ -93,11 +98,56 @@
     function openDay(day){
       const yyyy=day.getFullYear(), mm=String(day.getMonth()+1).padStart(2,'0'), dd=String(day.getDate()).padStart(2,'0');
       const dateStr = `${yyyy}-${mm}-${dd}`;
-      const list = $('#upcomingWrap'); if(!list) return;
-      const items = (window.DASHBOARD_EVENTS||[]).filter(e => e.date === dateStr);
-      list.innerHTML = items.length
-        ? items.map(e => `<div class="u-item"><div>${e.title}</div><a class="chip-btn" href="/proposal/${e.id}/detail/"><i class="fa-regular fa-eye"></i> View</a></div>`).join('')
-        : `<div class="empty">No events for ${day.toLocaleDateString()}</div>`;
+      const list = document.querySelector('.upcoming-content'); if(!list) return;
+      const allItems = (window.DASHBOARD_EVENTS||[]).filter(e => e.date === dateStr);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (allItems.length === 0) {
+        list.innerHTML = `<div class="empty">No events for ${day.toLocaleDateString()}</div>`;
+        return;
+      }
+      
+      // Show ALL events for the selected date (past and future)
+      list.innerHTML = allItems.map(e => {
+        const eventDate = new Date(e.date);
+        eventDate.setHours(0, 0, 0, 0);
+        
+        // Check if event is in the past
+        let isPastEvent = eventDate < today;
+        if (eventDate.getTime() === today.getTime() && e.time) {
+          // For today's events, check time as well
+          const [hours, minutes] = e.time.split(':');
+          const eventDateTime = new Date();
+          eventDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+          const now = new Date();
+          isPastEvent = eventDateTime < now;
+        }
+        
+        return `
+          <div class="u-item ${isPastEvent ? 'past-event' : ''}">
+            <div style="flex:1">
+              <div style="font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                ${e.title}
+                ${isPastEvent ? `<span class="event-badge past-badge">Past</span>` : ''}
+              </div>
+              ${e.venue ? `<div style="font-size:12px;color:var(--muted);margin-bottom:2px"><i class="fa-solid fa-location-dot"></i> ${e.venue}</div>` : ''}
+              ${e.event_focus_type ? `<div style="font-size:12px;color:var(--muted)"><i class="fa-solid fa-tag"></i> ${e.event_focus_type}</div>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              ${!isPastEvent ? `
+                <a class="chip-btn" href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${e.date.replace(/-/g,'')}/${e.date.replace(/-/g,'')}&details=${encodeURIComponent(e.description || '')}&location=${encodeURIComponent(e.venue || '')}" target="_blank" title="Add to Google Calendar">
+                  <i class="fab fa-google"></i>
+                </a>
+              ` : ''}
+              <a class="chip-btn" href="/event/${e.id}/details/" title="View Event Details">
+                <i class="fa-regular fa-eye"></i> View Event
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
   
     $('#calPrev')?.addEventListener('click', ()=>{ calRef = new Date(calRef.getFullYear(), calRef.getMonth()-1, 1); buildCalendar(); syncHeights(); });

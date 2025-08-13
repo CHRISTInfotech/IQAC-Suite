@@ -138,10 +138,10 @@
         <div class="header-actions">
           <select id="visibilitySelect" class="select">
             <option value="all">All</option>
-            <option value="private">Private</option>
-            <option value="staff">Teachers</option>
+            <option value="private">Normal Calendar (Private)</option>
+            <option value="teachers">Faculty (Announcements)</option>
           </select>
-          <a href="/suite/submit/?via=dashboard" class="chip-btn" id="addEventBtn"><i class="fa-solid fa-plus"></i> Add</a>
+          <a href="/suite/submit/?via=dashboard" class="chip-btn" id="addEventBtn"><i class="fa-solid fa-plus"></i> New Event</a>
         </div>
       </div>
       <div class="mini-cal" id="miniCalendar">
@@ -155,7 +155,12 @@
         </div>
         <div class="cal-grid" id="calGrid"></div>
       </div>
-      <div id="upcomingWrap" class="upcoming"></div>
+      <div id="upcomingWrap" class="upcoming">
+        <div class="upcoming-header">
+          <h4><i class="fa-regular fa-calendar-clock"></i> Upcoming Events</h4>
+        </div>
+        <div class="upcoming-content"></div>
+      </div>
     </section>
 
     <!-- Contribution (col 1–2, row 2) -->
@@ -179,6 +184,148 @@
   <script>
     try{window.DASHBOARD_EVENTS=JSON.parse(document.getElementById('calendarEventsJson').textContent);}catch{window.DASHBOARD_EVENTS=[];}
   </script>
+
+  <!-- Private Event Modal -->
+  <div id="privateEventModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-regular fa-calendar-plus"></i> Add Private Event</h3>
+        <button type="button" class="modal-close" id="closePrivateModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="privateEventForm">
+          <div class="form-group">
+            <label for="eventTitle">Title *</label>
+            <input type="text" id="eventTitle" name="title" required maxlength="200" placeholder="Enter event title">
+          </div>
+          
+          <div class="form-group">
+            <label for="eventDescription">Description</label>
+            <textarea id="eventDescription" name="description" rows="3" placeholder="Optional description"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="eventDate">Date *</label>
+              <input type="date" id="eventDate" name="event_date" required>
+            </div>
+            <div class="form-group">
+              <label for="eventTime">Time</label>
+              <input type="time" id="eventTime" name="event_time">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="isAllDay" name="is_all_day">
+              <span class="checkbox-custom"></span>
+              All Day Event
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="eventLocation">Location</label>
+            <input type="text" id="eventLocation" name="location" maxlength="200" placeholder="Event location">
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="addToGoogle" name="add_to_google">
+              <span class="checkbox-custom"></span>
+              Add to Google Calendar
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelPrivateEvent">Cancel</button>
+        <button type="submit" class="btn btn-primary" form="privateEventForm">Save Event</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcement Event Modal -->
+  <div id="announcementEventModal" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-bullhorn"></i> Add Faculty Announcement</h3>
+        <button type="button" class="modal-close" id="closeAnnouncementModal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="announcementEventForm">
+          <div class="form-group">
+            <label for="announcementTitle">Title *</label>
+            <input type="text" id="announcementTitle" name="title" required maxlength="200" placeholder="Enter faculty announcement title">
+          </div>
+          
+          <div class="form-group">
+            <label for="announcementDescription">Description</label>
+            <textarea id="announcementDescription" name="description" rows="3" placeholder="Faculty announcement details"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="announcementDate">Date *</label>
+              <input type="date" id="announcementDate" name="event_date" required>
+            </div>
+            <div class="form-group">
+              <label for="announcementTime">Time</label>
+              <input type="time" id="announcementTime" name="event_time">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="isAnnouncementAllDay" name="is_all_day">
+              <span class="checkbox-custom"></span>
+              All Day Event
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="announcementLocation">Location</label>
+            <input type="text" id="announcementLocation" name="location" maxlength="200" placeholder="Event location">
+          </div>
+          
+          <div class="form-group">
+            <label for="eventType">Event Type</label>
+            <select id="eventType" name="event_type">
+              <option value="meeting">Faculty Meeting</option>
+              <option value="workshop">Workshop</option>
+              <option value="training">Training</option>
+              <option value="seminar">Seminar</option>
+              <option value="deadline">Deadline</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="notifyParticipants" name="notify_participants" checked>
+              <span class="checkbox-custom"></span>
+              Notify Department Faculty
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="addAnnouncementToGoogle" name="add_to_google">
+              <span class="checkbox-custom"></span>
+              Add to Google Calendar
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancelAnnouncementEvent">Cancel</button>
+        <button type="submit" class="btn btn-primary" form="announcementEventForm">Create Announcement</button>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 

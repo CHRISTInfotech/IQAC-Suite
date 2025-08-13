@@ -398,6 +398,59 @@ class Class(models.Model):
     def __str__(self):
         return f"{self.code} - {self.name}"
     
+class PrivateCalendarEvent(models.Model):
+    """Personal calendar events for faculty members"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='private_calendar_events')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    event_date = models.DateField()
+    event_time = models.TimeField(null=True, blank=True)
+    is_all_day = models.BooleanField(default=False)
+    location = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['event_date', 'event_time']
+        
+    def __str__(self):
+        return f"{self.title} - {self.event_date}"
+
+class AnnouncementEvent(models.Model):
+    """Department-level announcement events for teachers"""
+    EVENT_TYPES = [
+        ('meeting', 'Faculty Meeting'),
+        ('workshop', 'Workshop'),
+        ('training', 'Training'),
+        ('seminar', 'Seminar'),
+        ('deadline', 'Deadline'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    event_date = models.DateField()
+    event_time = models.TimeField(null=True, blank=True)
+    is_all_day = models.BooleanField(default=False)
+    location = models.CharField(max_length=200, blank=True)
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES, default='other')
+    
+    # Organization and department targeting
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_announcements')
+    
+    # Notification settings
+    notify_participants = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['event_date', 'event_time']
+        
+    def __str__(self):
+        return f"{self.title} - {self.organization.name} - {self.event_date}"
+
 class ImpersonationLog(models.Model):
     """Track user impersonation history"""
     original_user = models.ForeignKey(

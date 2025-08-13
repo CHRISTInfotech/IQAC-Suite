@@ -69,7 +69,6 @@ urlpatterns = [
     path('core-admin/settings/<str:model_name>/add/', views.admin_master_data_add, name='admin_settings_add'),
     path('core-admin/settings/<str:model_name>/<int:pk>/edit/', views.admin_master_data_edit, name='admin_settings_edit'),
     path('core-admin/settings/<str:model_name>/<int:pk>/delete/', views.admin_master_data_delete, name='admin_settings_delete'),
-    path('core-admin/academic-years/', views.admin_academic_year_settings, name='admin_academic_year_settings'),
 
     # ────────────────────────────────────────────────
     # Admin - Approval Flow Management
@@ -235,6 +234,11 @@ urlpatterns = [
     path('api/student/events', views.api_student_events, name='api_student_events'),
     path('api/student/achievements', views.api_student_achievements, name='api_student_achievements'),
     
+    # Calendar APIs
+    path('api/private-calendar-events/', views.api_private_calendar_events, name='api_private_calendar_events'),
+    path('api/announcement-events/', views.api_announcement_events, name='api_announcement_events'),
+    path('api/student-performance/', views.api_student_performance, name='api_student_performance'),
+    path('api/event-contribution-summary/', views.api_event_contribution_summary, name='api_event_contribution_summary'),
     
     
     
@@ -246,7 +250,4 @@ urlpatterns = [
     path('api/export-data/csv/', views.export_data_csv, name='export_data_csv'),
     path('api/export-data/excel/', views.export_data_excel, name='export_data_excel'),
     path('settings/pso-po-management/', views.settings_pso_po_management,name='settings_pso_po_management'),
-
-     path('dashboard/', views.dashboard, name='dashboard'),
-     path('dashboard/', views.dashboard, name='dashboard_alt')
 ]
