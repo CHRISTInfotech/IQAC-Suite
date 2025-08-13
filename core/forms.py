@@ -19,8 +19,7 @@ class RoleAssignmentForm(forms.ModelForm):
         self.fields["organization"].queryset = (
             Organization.objects.filter(org_filter).order_by("name")
         )
-        # Replace Django's default blank label ("---------") with a clearer prompt
-        self.fields["organization"].empty_label = "Select Organization"
+        self.fields["organization"].empty_label = ""  # Changed to empty string
 
         # Include active roles plus the currently assigned role (even if inactive)
         role_filter = Q(is_active=True)
@@ -31,8 +30,7 @@ class RoleAssignmentForm(forms.ModelForm):
             .select_related("organization")
             .order_by("name")
         )
-        # Remove the implicit blank option from the role dropdown
-        self.fields["role"].empty_label = "Select Role"
+        self.fields["role"].empty_label = ""  # Changed to empty string
 
 
 class RegistrationForm(forms.Form):
