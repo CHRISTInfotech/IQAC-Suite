@@ -153,6 +153,123 @@
     outline: none;
 }
 
+/* Enhanced Table Action Buttons Container */
+.table-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 5px;
+    min-width: max-content;
+    justify-content: flex-start;
+    position: relative;
+    z-index: 2;
+}
+
+/* Individual Action Button Styling */
+.table-actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    min-width: max-content;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    position: relative;
+    z-index: 3;
+}
+
+/* Ensure the last column (actions) stays visible */
+.datatable th:last-child,
+.datatable td:last-child {
+    position: sticky !important;
+    right: 0;
+    background: #fff !important;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+    z-index: 4 !important;
+    min-width: max-content;
+    padding-right: 15px !important;
+}
+
+/* Add hover effect for sticky column */
+.datatable tr:hover td:last-child {
+    background-color: #f8f9fa !important;
+}
+
+/* Ensure buttons are visible on mobile */
+@media screen and (max-width: 768px) {
+    .table-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        position: relative;
+        z-index: 5;
+    }
+
+    .table-actions .btn {
+        padding: 0.25rem 0.4rem;
+        font-size: 0.8rem;
+        min-height: 32px;
+        min-width: 32px;
+        position: relative;
+        z-index: 6;
+    }
+    
+    /* Prevent DataTables responsive features from hiding the action buttons */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td:last-child {
+        position: sticky !important;
+        right: 0;
+        display: table-cell !important;
+        overflow: visible !important;
+        z-index: 4;
+    }
+}
+
+/* Handle extreme zoom levels */
+@media screen and (min-width: 320px) {
+    .table-responsive {
+        max-width: 100vw;
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .datatable {
+        min-width: max-content;
+    }
+    
+    /* Keep action column visible at all zoom levels */
+    .actions-column, 
+    td.actions-column,
+    th.actions-column {
+        position: sticky !important;
+        right: 0;
+        z-index: 4;
+        background: inherit;
+    }
+}
+
+/* Enhance table container for better scroll behavior */
+.table-responsive {
+    position: relative;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+/* Fix z-index stacking for DataTables elements */
+.dataTables_wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure DataTables controls don't overlap */
+.dataTables_length, 
+.dataTables_filter,
+.dataTables_info,
+.dataTables_paginate {
+    position: relative;
+    z-index: 2;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .filter-row {
@@ -171,19 +288,123 @@
     }
 }
 
-/* Custom Select2 dropdown styling */
-.select2-container--bootstrap-5 .select2-dropdown {
-    border-color: #ced4da;
-}
+        /* Custom responsive table styles */
+        .admin-users-table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
 
-.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
-    border-color: #ced4da;
-}
+        .admin-users-table {
+            min-width: 800px;
+            font-size: 0.9rem;
+        }
 
-.select2-container--bootstrap-5 .select2-results__option--highlighted[aria-selected] {
-    background-color: #007bff;
-    color: #fff;
-}
+        .user-info strong {
+            display: block;
+            font-weight: 600;
+        }
+
+        .user-info small {
+            font-size: 0.75rem;
+            color: #6c757d !important;
+        }
+
+        /* Mobile-first responsive approach */
+        @media (max-width: 768px) {
+            .admin-users-table {
+                font-size: 0.8rem;
+            }
+            
+            .admin-users-table th,
+            .admin-users-table td {
+                padding: 0.5rem 0.3rem;
+                vertical-align: middle;
+            }
+            
+            /* Mobile card styles */
+            .mobile-card {
+                border: 1px solid #dee2e6;
+                border-radius: 0.375rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                background: white;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+            
+            .mobile-card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 0.75rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .mobile-card-body {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-card-body .row {
+                margin-bottom: 0.5rem;
+            }
+
+            .mobile-card-body .row:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
+        }
+
+        /* Custom badge styles */
+        .badge {
+            font-size: 0.75rem;
+            margin-right: 0.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Sticky header for better UX */
+        .table-sticky-header {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+
+        /* Enhanced hover effects */
+        .admin-users-table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        /* Responsive utilities */
+        @media (max-width: 576px) {
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .mobile-card {
+                margin-bottom: 0.75rem;
+                padding: 0.75rem;
+            }
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
 </style>
 {% endblock %}
 
@@ -331,87 +552,186 @@
     </div>
     {% endif %}
 
-    <div class="table-responsive">
-        <table id="myTable" class="admin-users-table display nowrap" style="width:100%">
-            <thead>
-                <tr>
-                    <th>S.NO</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Roles</th>
-                    <th>Organization</th>
-                    <th>Date Joined</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>
-                        <div class="user-info">
-                            <strong>{{ user.get_full_name|default:user.username }}</strong>
-                            <small class="text-muted d-block">@{{ user.username }}</small>
-                        </div>
-                    </td>
-                    <td>
-                        {% if user.email %}
-                            <a href="mailto:{{ user.email }}">{{ user.email }}</a>
-                        {% else %}
-                            <span class="text-muted">No email</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if user.role_assignments.all %}
-                            {% for ra in user.role_assignments.all %}
-                                <div class="{% if not forloop.first %}mt-1{% endif %}">
-                                    <span class="badge {% if forloop.first %}bg-primary{% else %}bg-secondary{% endif %}">{{ ra.role.name }}</span>
-                                </div>
-                            {% endfor %}
-                        {% elif user.profile %}
-                            <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% for ra in user.role_assignments.all %}
-                            <div>
-                                {% if ra.organization %}
-                                    {{ ra.organization.name }}
-                                    <small class="text-muted">({{ ra.organization.org_type.name }})</small>
-                                {% else %}
-                                    <span class="text-muted">No organization</span>
-                                {% endif %}
+    <div class="card-body p-0">
+                        <!-- Desktop Table View -->
+                        <div class="d-none d-md-block">
+                            <div class="table-responsive admin-users-table-container">
+                                <table id="myTable" class="admin-users-table table table-hover table-striped" style="width:100%">
+                                    <thead class="table-dark table-sticky-header">
+                                        <tr>
+                                            <th>S.NO</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Roles</th>
+                                            <th class="d-lg-table-cell d-none">Organization</th>
+                                            <th class="d-xl-table-cell d-none">Date Joined</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                <div class="user-info">
+                                                    <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                                    <small class="text-muted d-block">@{{ user.username }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                {% if user.email %}
+                                                    <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">No email</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if user.role_assignments.all %}
+                                                    {% for ra in user.role_assignments.all %}
+                                                        <div class="{% if not forloop.first %}mt-1{% endif %}">
+                                                            <span class="badge {% if forloop.first %}bg-primary{% else %}bg-secondary{% endif %}">{{ ra.role.name }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% elif user.profile %}
+                                                    <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="d-lg-table-cell d-none">
+                                                {% for ra in user.role_assignments.all %}
+                                                    <div>
+                                                        {% if ra.organization %}
+                                                            {{ ra.organization.name }}
+                                                            <small class="text-muted">({{ ra.organization.org_type.name }})</small>
+                                                        {% else %}
+                                                            <span class="text-muted">No organization</span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% empty %}
+                                                    <span class="text-muted">No assignments</span>
+                                                {% endfor %}
+                                            </td>
+                                            <td class="d-xl-table-cell d-none">{{ user.date_joined|date:"M d, Y H:i" }}</td>
+                                            <td>
+                                                {% if user.is_active and user.last_login %}
+                                                    <span class="badge bg-success">Active</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                {% endif %}
+                                                {% if user.is_superuser %}
+                                                    <span class="badge bg-warning">Admin</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'admin_user_edit' user.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> <span class="d-none d-lg-inline">Edit</span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="8" class="empty-state">
+                                                <i class="fas fa-users"></i>
+                                                <div>No users found matching the current filters.</div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
-                        {% empty %}
-                            <span class="text-muted">No assignments</span>
-                        {% endfor %}
-                    </td>
-                    <td>{{ user.date_joined|date:"M d, Y H:i" }}</td>
-                    <td>
-                        {% if user.is_active and user.last_login %}
-                            <span class="badge bg-success">Active</span>
-                        {% else %}
-                            <span class="badge bg-danger">Inactive</span>
-                        {% endif %}
-                        {% if user.is_superuser %}
-                            <span class="badge bg-warning">Admin</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'admin_user_edit' user.id %}" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-edit"></i> Edit
-                        </a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align:center;">No users found matching the current filters.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                        </div>
+
+                        <!-- Mobile Card View -->
+                        <div class="d-md-none mobile-only">
+                            <div class="p-3">
+                                {% for user in users %}
+                                <div class="mobile-card">
+                                    <div class="mobile-card-header">
+                                        <div class="user-info">
+                                            <strong>{{ user.get_full_name|default:user.username }}</strong>
+                                            <small class="text-muted d-block">@{{ user.username }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            {% if user.is_active and user.last_login %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                            {% if user.is_superuser %}
+                                                <span class="badge bg-warning">Admin</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mobile-card-body">
+                                        <div class="row">
+                                            <div class="col-4"><strong>Email:</strong></div>
+                                            <div class="col-8">
+                                                {% if user.email %}
+                                                    <a href="mailto:{{ user.email }}" class="text-break">{{ user.email }}</a>
+                                                {% else %}
+                                                    <span class="text-muted">No email</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-4"><strong>Roles:</strong></div>
+                                            <div class="col-8">
+                                                {% if user.role_assignments.all %}
+                                                    {% for ra in user.role_assignments.all %}
+                                                        <span class="badge {% if forloop.first %}bg-primary{% else %}bg-secondary{% endif %}">{{ ra.role.name }}</span>
+                                                    {% endfor %}
+                                                {% elif user.profile %}
+                                                    <span class="badge bg-primary">{{ user.profile.get_role_display }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">No roles</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-4"><strong>Organization:</strong></div>
+                                            <div class="col-8">
+                                                {% for ra in user.role_assignments.all %}
+                                                    <div class="{% if not forloop.first %}mt-1{% endif %}">
+                                                        {% if ra.organization %}
+                                                            {{ ra.organization.name }}
+                                                            <small class="text-muted d-block">({{ ra.organization.org_type.name }})</small>
+                                                        {% else %}
+                                                            <span class="text-muted">No organization</span>
+                                                        {% endif %}
+                                                    </div>
+                                                {% empty %}
+                                                    <span class="text-muted">No assignments</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-4"><strong>Joined:</strong></div>
+                                            <div class="col-8">{{ user.date_joined|date:"M d, Y" }}</div>
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-12">
+                                                <a href="{% url 'admin_user_edit' user.id %}" class="btn btn-sm btn-outline-primary w-100">
+                                                    <i class="fas fa-edit"></i> Edit User
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <div>No users found matching the current filters.</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                
 </div>
 {% endblock %}
 
@@ -628,9 +948,6 @@ class FilterManager {
         });
     }
 
-    /**
-     * Setup event listeners for filter changes
-     */
     setupEventListeners() {
         // Dynamic filtering - apply filters on change
         $('#status').on('change', () => {
