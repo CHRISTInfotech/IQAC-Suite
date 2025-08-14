@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
+{% block head_extra %}
 <link rel="stylesheet" href="{% static 'core/css/reports.css' %}">
+{% endblock %}
 
-<div class="reports-main-container">
-    <div class="reports-header-title">Reports</div>
-    <div class="reports-header-desc">
-        Review, approve, and download submitted or generated reports below.
-    </div>
+{% block content %}
+<div class="reports-page">
+    <header class="reports-header">
+        <h1 class="reports-header-title">Reports Dashboard</h1>
+        <p class="reports-header-desc">
+            Review, approve, and download submitted or generated reports below.
+        </p>
+    </header>
+
     <div class="reports-table-wrap">
         <table class="reports-table">
             <thead>
@@ -27,7 +32,6 @@
                 {% for report in reports %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-
                     <td>
                         {% if report.title %}
                             {{ report.title }}
@@ -37,15 +41,13 @@
                             -
                         {% endif %}
                     </td>
-
                     <td>
                         {% if report.proposal %}
-                            Event Report
+                            <span class="report-type">Event Report</span>
                         {% else %}
-                            {{ report.get_report_type_display }}
+                            <span class="report-type">{{ report.get_report_type_display }}</span>
                         {% endif %}
                     </td>
-
                     <td>
                         {% if report.organization %}
                             {{ report.organization }}
@@ -55,7 +57,6 @@
                             -
                         {% endif %}
                     </td>
-
                     <td>
                         {% if report.submitted_by %}
                             {{ report.submitted_by.get_full_name|default:report.submitted_by.username }}
@@ -65,43 +66,55 @@
                             -
                         {% endif %}
                     </td>
-
-                    <td>{{ report.created_at|date:"Y-m-d H:i" }}</td>
-
+                    <td>{{ report.created_at|date:"M d, Y H:i" }}</td>
                     <td>
                         {% if report.proposal %}
-                            <span class="status-generated">Generated</span>
+                            <span class="status-badge status-generated">Generated</span>
                         {% else %}
                             {% if report.status == "approved" %}
-                                <span class="status-approved">Approved</span>
+                                <span class="status-badge status-approved">Approved</span>
                             {% elif report.status == "submitted" %}
-                                <span class="status-pending">Pending</span>
+                                <span class="status-badge status-pending">Pending</span>
                             {% elif report.status == "rejected" %}
-                                <span class="status-rejected">Rejected</span>
+                                <span class="status-badge status-rejected">Rejected</span>
                             {% else %}
-                                <span>{{ report.get_status_display }}</span>
+                                <span class="status-badge">{{ report.get_status_display }}</span>
                             {% endif %}
                         {% endif %}
                     </td>
-
                     <td>
                         {% if report.proposal %}
-                            <a href="{% url 'emt:view_report' report.id %}" class="report-action-btn">View</a>
-                            <a href="{% url 'emt:download_pdf' report.id %}" class="report-action-btn">PDF</a>
+                            <a href="{% url 'emt:view_report' report.id %}" class="report-action-btn">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="{% url 'emt:download_pdf' report.id %}" class="report-action-btn">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </a>
                         {% else %}
                             {% if report.file %}
-                                <a href="{{ report.file.url }}" class="report-action-btn" download>Download</a>
+                                <a href="{{ report.file.url }}" class="report-action-btn" download>
+                                    <i class="fas fa-download"></i> Download
+                                </a>
                             {% endif %}
                             {% if report.status == "submitted" %}
-                                <a href="{% url 'admin_reports_approve' report.id %}" class="report-action-btn">Approve</a>
-                                <a href="{% url 'admin_reports_reject' report.id %}" class="report-action-btn">Reject</a>
+                                <a href="{% url 'admin_reports_approve' report.id %}" class="report-action-btn">
+                                    <i class="fas fa-check"></i> Approve
+                                </a>
+                                <a href="{% url 'admin_reports_reject' report.id %}" class="report-action-btn">
+                                    <i class="fas fa-times"></i> Reject
+                                </a>
                             {% endif %}
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="8" style="text-align:center;">No reports found.</td>
+                    <td colspan="8" class="text-center text-muted">
+                        <div class="empty-state">
+                            <i class="fas fa-file-alt fa-3x"></i>
+                            <p>No reports found</p>
+                        </div>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
