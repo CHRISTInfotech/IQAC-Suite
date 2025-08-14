@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="{% static 'core/css/admin_view_report.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb-nav">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'admin_reports' %}">Reports</a>
+            </li>
+            <li class="breadcrumb-item active">View Report</li>
+        </ol>
+    </nav>
+
+    <!-- Report Header -->
+    <div class="content-header">
+        <div class="header-main">
+            <h1 class="page-title">{{ report.title|default:report.proposal.event_title }}</h1>
+            <div class="header-actions">
+                <a href="{% url 'emt:download_pdf' report.id %}" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+                <a href="{% url 'admin_reports' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Reports
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ report.proposal.participant_count|default:"0" }}</div>
+                    <div class="stat-label">Participants</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ report.proposal.duration }}</div>
+                    <div class="stat-label">Hours</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ report.proposal.event_date|date:"M d" }}</div>
+                    <div class="stat-label">Event Date</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <div class="stat-value">{{ report.get_status_display }}</div>
+                    <div class="stat-label">Status</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-body">
+        <!-- Event Details -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i> Event Details
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Organization</label>
+                        <div>{{ report.proposal.organization }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Event Type</label>
+                        <div>{{ report.proposal.get_event_type_display }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Venue</label>
+                        <div>{{ report.proposal.venue }}</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Submitted By</label>
+                        <div>{{ report.proposal.submitted_by.get_full_name }}</div>
+                    </div>
+                </div>
+                
+                <div class="description-box">
+                    <label>Description</label>
+                    <div class="description-content">
+                        {{ report.proposal.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Outcomes Section -->
+        {% if report.proposal.outcomes.all %}
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-bullseye"></i> Event Outcomes
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Outcome</th>
+                                <th>Status</th>
+                                <th>Achievement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for outcome in report.proposal.outcomes.all %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ outcome.description }}</td>
+                                <td>
+                                    <span class="badge bg-{{ outcome.status }}">
+                                        {{ outcome.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ outcome.achievement|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Attachments & Resources -->
+        {% if report.proposal.attachments.all %}
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-paperclip"></i> Attachments & Resources
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="attachments-grid">
+                    {% for attachment in report.proposal.attachments.all %}
+                    <div class="attachment-card">
+                        <div class="attachment-icon">
+                            <i class="fas fa-file"></i>
+                        </div>
+                        <div class="attachment-info">
+                            <div class="attachment-name">{{ attachment.filename }}</div>
+                            <a href="{{ attachment.file.url }}" class="btn btn-sm btn-outline-primary" download>
+                                <i class="fas fa-download"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Event Photos -->
+        {% if report.proposal.photos.all %}
+        <div class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-images"></i> Event Photos
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="photos-grid">
+                    {% for photo in report.proposal.photos.all %}
+                    <div class="photo-card">
+                        <img src="{{ photo.image.url }}" alt="Event photo {{ forloop.counter }}" 
+                             class="event-photo" loading="lazy">
+                        <div class="photo-overlay">
+                            <a href="{{ photo.image.url }}" class="btn btn-light btn-sm" target="_blank">
+                                <i class="fas fa-expand"></i> View
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
