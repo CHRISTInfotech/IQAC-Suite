@@ -44,23 +44,3 @@ def prevent_impersonation_of_admins(view_func):
                 pass
         return view_func(request, *args, **kwargs)
     return _wrapped_view
-
-def log_impersonation(view_func):
-    """Decorator to log impersonation actions"""
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        import logging
-        logger = logging.getLogger('impersonation')
-        
-        result = view_func(request, *args, **kwargs)
-        
-        # Log the impersonation
-        if hasattr(request, 'user') and request.user.is_authenticated:
-            if 'impersonate_user_id' in request.session:
-                logger.info(
-                    f"User {request.user.username} (ID: {request.user.id}) "
-                    f"impersonating user ID: {request.session['impersonate_user_id']}"
-                )
-        
-        return result
-    return _wrapped_view
