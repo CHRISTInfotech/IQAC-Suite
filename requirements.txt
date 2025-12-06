@@ -60,7 +60,7 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
-urllib3==2.5.0
+urllib3==2.6.0
 weasyprint==66.0
 webencodings==0.5.1
 whitenoise==6.7.0
