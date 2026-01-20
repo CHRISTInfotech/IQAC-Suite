@@ -61,7 +61,7 @@ typing_extensions==4.15.0
 tzdata==2025.2
 uritemplate==4.2.0
 urllib3==2.5.0
-weasyprint==66.0
+weasyprint==68.0
 webencodings==0.5.1
 whitenoise==6.7.0
 zopfli==0.2.3.post1
